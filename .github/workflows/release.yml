@@ -18,44 +18,12 @@ env:
   RELEASE_ADDS: README.md LICENSE-APACHE LICENSE-MIT
 
 jobs:
-  build-aarch64:
-    name: Build artifacts (aarch64)
-    runs-on: ubuntu-latest
-    steps:
-      - uses: uraimo/run-on-arch-action@v2.0.5
-        id: build
-        with:
-          arch: aarch64
-          distro: alpine_latest
-          setup: |
-            mkdir -p "${PWD}/aarch64-artifacts"
-
-          dockerRunArgs: |
-            --volume "${PWD}/aarch64-artifacts:/artifacts"
-
-          shell: /bin/sh
-          install: |
-            apk update
-            apk add git rustup build-base perl
-            rustup-init -y
-
-          run: |
-            cd /artifacts
-            git clone https://github.com/quinn-stp/wasm-pack ./
-            source $HOME/.cargo/env
-            CFLAGS="-mno-outline-atomics" cargo build --release
-
-      - name: Test Output
-        run: |
-          ls /aarch64-artifacts/target/release/
-
-
   build:
     name: Build artifacts
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
-        build: [linux, macos, windows]
+        build: [linux, macos, windows, linux-aarch64]
         include:
           - build: linux
             os: ubuntu-latest
@@ -66,6 +34,9 @@ jobs:
           - build: windows
             os: windows-latest
             rust: stable
+          - build: linux-aarch64
+            rust: stable
+            os: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
       - uses: actions-rs/toolchain@v1
@@ -111,6 +82,37 @@ jobs:
         run: |
           mkdir ${{ env.RELEASE_DIR }}
           mkdir dist
+
+      - uses: uraimo/run-on-arch-action@v2.0.5
+        if: matrix.build == 'linux-aarch64'
+        id: build
+        with:
+          arch: aarch64
+          distro: alpine_latest
+          setup: |
+            mkdir -p "${PWD}/aarch64-artifacts"
+
+          dockerRunArgs: |
+            --volume "${PWD}/aarch64-artifacts:/artifacts"
+
+          shell: /bin/sh
+          install: |
+            apk update
+            apk add git rustup build-base perl
+            rustup-init -y
+
+          run: |
+            cd /artifacts
+            git clone https://github.com/quinn-stp/wasm-pack ./
+            source $HOME/.cargo/env
+            CFLAGS="-mno-outline-atomics" cargo build --release
+
+      - name: Create tarball (Linux aarch64)
+        if: matrix.build == 'linux-aarch64'
+        run: |
+          mv /aarch64-artifacts/wasm-pack/target/${{ env.LINUX_AARCH64_TARGET }}/release/${{ env.RELEASE_BIN }} ./dist/${{ env.RELEASE_BIN }}
+          mv ${{ env.RELEASE_ADDS }} ./dist
+          7z a -ttar -so -an ./dist | 7z a -si ./${{ env.RELEASE_DIR }}/${{ env.RELEASE_BIN }}-${{ steps.get_version.outputs.VERSION }}-${{ env.LINUX_AARCH64_TARGET }}.tar.gz
 
       - name: Create tarball (Linux)
         if: matrix.build == 'linux'
