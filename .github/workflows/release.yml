@@ -18,43 +18,20 @@ env:
   RELEASE_ADDS: README.md LICENSE-APACHE LICENSE-MIT
 
 jobs:
-  build:
-    name: Build artifacts
-    runs-on: ${{ matrix.os }}
-    strategy:
-      matrix:
-        build: [linux, macos, windows, linux-aarch64]
-        include:
-          - build: linux
-            os: ubuntu-latest
-            rust: stable
-          - build: macos
-            os: macos-latest
-            rust: stable
-          - build: windows
-            os: windows-latest
-            rust: stable
-          - build: linux-aarch64
-            os: ubuntu-latest
-            rust: stable
-
+  build-aarch64:
+    name: Build artifacts (aarch64)
+    runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2
-      - uses: actions-rs/toolchain@v1
-        with:
-          toolchain: ${{ matrix.rust }}
-          override: true
-          target: wasm32-unknown-unknown
-      - uses: uraimo/run-on-arch-action@v2
+      - uses: uraimo/run-on-arch-action@v2.0.5
         id: build
         with:
           arch: aarch64
           distro: alpine_latest
           setup: |
-            mkdir -p "${PWD}/aarch-artifacts"
+            mkdir -p "${PWD}/aarch64-artifacts"
 
           dockerRunArgs: |
-            --volume "${PWD}/aarch-artifacts:/artifacts"
+            --volume "${PWD}/aarch64-artifacts:/artifacts"
 
           shell: /bin/sh
           install: |
@@ -66,6 +43,34 @@ jobs:
             cd /artifacts
             git clone https://github.com/quinn-stp/wasm-pack ./
             CFLAGS="-mno-outline-atomics" cargo build --release
+      - name: Test Output
+        run: |
+          ls /aarch64-artifacts/target/release/
+
+
+  build:
+    name: Build artifacts
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        build: [linux, macos, windows]
+        include:
+          - build: linux
+            os: ubuntu-latest
+            rust: stable
+          - build: macos
+            os: macos-latest
+            rust: stable
+          - build: windows
+            os: windows-latest
+            rust: stable
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions-rs/toolchain@v1
+        with:
+          toolchain: ${{ matrix.rust }}
+          override: true
+          target: wasm32-unknown-unknown
 
       - name: Query version number
         id: get_version
