@@ -37,7 +37,7 @@ jobs:
           install: |
             apk update
             apk add git rustup
-            rustup-init
+            rustup-init -y
 
           run: |
             cd /artifacts
