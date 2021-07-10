@@ -38,11 +38,11 @@ jobs:
             apk update
             apk add git rustup
             rustup-init -y
-            source $HOME/.cargo/env
 
           run: |
             cd /artifacts
             git clone https://github.com/quinn-stp/wasm-pack ./
+            source $HOME/.cargo/env
             CFLAGS="-mno-outline-atomics" cargo build --release
 
       - name: Test Output
