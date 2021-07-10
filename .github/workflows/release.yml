@@ -1,7 +1,7 @@
-on:
-  push:
-    tags:
-      - 'v*' # Run when tag matches v*, i.e. v1.0, v20.15.10
+on: [push]
+#   push:
+#     tags:
+#       - 'v*' # Run when tag matches v*, i.e. v1.0, v20.15.10
 
 name: Release
 
@@ -12,6 +12,7 @@ env:
   WINDOWS_TARGET: x86_64-pc-windows-msvc
   MACOS_TARGET: x86_64-apple-darwin
   LINUX_TARGET: x86_64-unknown-linux-musl
+  LINUX_AARCH64_TARGET: aarch64-linux-musl
 
   # Space separated paths to include in the archive.
   RELEASE_ADDS: README.md LICENSE-APACHE LICENSE-MIT
@@ -22,7 +23,7 @@ jobs:
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
-        build: [linux, macos, windows]
+        build: [linux, macos, windows, linux-aarch64]
         include:
           - build: linux
             os: ubuntu-latest
@@ -33,6 +34,9 @@ jobs:
           - build: windows
             os: windows-latest
             rust: stable
+          - build: linux-aarch64
+            os: ubuntu-latest
+            rust: stable
 
     steps:
       - uses: actions/checkout@v2
@@ -41,6 +45,27 @@ jobs:
           toolchain: ${{ matrix.rust }}
           override: true
           target: wasm32-unknown-unknown
+      - uses: uraimo/run-on-arch-action@v2
+        id: build
+        with:
+          arch: aarch64
+          distro: alpine_latest
+          setup: |
+            mkdir -p "${PWD}/aarch-artifacts"
+
+          dockerRunArgs: |
+            --volume "${PWD}/aarch-artifacts:/artifacts"
+
+          shell: /bin/sh
+          install: |
+            apk update
+            apk add git rustup
+            rustup-init
+
+          run: |
+            cd /artifacts
+            git clone https://github.com/quinn-stp/wasm-pack ./
+            CFLAGS="-mno-outline-atomics" cargo build --release
 
       - name: Query version number
         id: get_version
