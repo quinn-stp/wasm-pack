@@ -12,7 +12,7 @@ env:
   WINDOWS_TARGET: x86_64-pc-windows-msvc
   MACOS_TARGET: x86_64-apple-darwin
   LINUX_TARGET: x86_64-unknown-linux-musl
-  LINUX_AARCH64_TARGET: aarch64-linux-musl
+  LINUX_AARCH64_TARGET: aarch64-unknown-linux-musl
 
   # Space separated paths to include in the archive.
   RELEASE_ADDS: README.md LICENSE-APACHE LICENSE-MIT
@@ -200,7 +200,7 @@ jobs:
           upload_url: ${{ steps.create_release.outputs.upload_url }}
           asset_path: ./linux-aarch64/wasm-pack-${{ steps.get_version.outputs.VERSION }}-${{ env.LINUX_TARGET }}.tar.gz
           asset_content_type: application/gzip
-          asset_name: wasm-pack-${{ steps.get_version.outputs.VERSION }}-${{ env.LINUX_TARGET }}.tar.gz
+          asset_name: wasm-pack-${{ steps.get_version.outputs.VERSION }}-${{ env.LINUX_AARCH64_TARGET }}.tar.gz
 
       - name: Release Windows tarball
         uses: actions/upload-release-asset@v1
