@@ -168,6 +168,11 @@ jobs:
         with:
           name: linux
 
+      - name: Download Linux aarch64 tarball
+        uses: actions/download-artifact@v1
+        with:
+          name: linux-aarch64
+
       - name: Download MacOS tarball
         uses: actions/download-artifact@v1
         with:
@@ -185,6 +190,16 @@ jobs:
         with:
           upload_url: ${{ steps.create_release.outputs.upload_url }}
           asset_path: ./linux/wasm-pack-${{ steps.get_version.outputs.VERSION }}-${{ env.LINUX_TARGET }}.tar.gz
+          asset_content_type: application/gzip
+          asset_name: wasm-pack-${{ steps.get_version.outputs.VERSION }}-${{ env.LINUX_TARGET }}.tar.gz
+
+      - name: Release Linux aarch64 tarball
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: ./linux-aarch64/wasm-pack-${{ steps.get_version.outputs.VERSION }}-${{ env.LINUX_TARGET }}.tar.gz
           asset_content_type: application/gzip
           asset_name: wasm-pack-${{ steps.get_version.outputs.VERSION }}-${{ env.LINUX_TARGET }}.tar.gz
 
