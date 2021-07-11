@@ -198,7 +198,7 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: ./linux-aarch64/wasm-pack-${{ steps.get_version.outputs.VERSION }}-${{ env.LINUX_TARGET }}.tar.gz
+          asset_path: ./linux-aarch64/wasm-pack-${{ steps.get_version.outputs.VERSION }}-${{ env.LINUX_AARCH64_TARGET }}.tar.gz
           asset_content_type: application/gzip
           asset_name: wasm-pack-${{ steps.get_version.outputs.VERSION }}-${{ env.LINUX_AARCH64_TARGET }}.tar.gz
 
