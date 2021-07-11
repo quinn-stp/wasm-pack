@@ -93,7 +93,7 @@ jobs:
           #   mkdir -p "${PWD}/aarch64-artifacts"
 
           dockerRunArgs: |
-            --volume "${PWD}:/artifacts" --user '"$(id -u):(id -g)"'
+            --volume "${PWD}:/artifacts" --user "$(id -u):$(id -g)"
 
           shell: /bin/sh
           install: |
