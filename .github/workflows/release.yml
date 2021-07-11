@@ -105,7 +105,7 @@ jobs:
           run: |
             echo "$HOME"
             cd /artifacts
-            source $HOME/.cargo/env
+            source /root/.cargo/env
             CFLAGS="-mno-outline-atomics" cargo build --release
 
       - name: Create tarball (Linux aarch64)
