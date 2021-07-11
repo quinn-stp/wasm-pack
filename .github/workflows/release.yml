@@ -110,7 +110,6 @@ jobs:
       - name: Create tarball (Linux aarch64)
         if: matrix.build == 'linux-aarch64'
         run: |
-          ls -R
           mv ./aarch64-artifacts/target/release/${{ env.RELEASE_BIN }} ./dist/${{ env.RELEASE_BIN }}
           mv ${{ env.RELEASE_ADDS }} ./dist
           7z a -ttar -so -an ./dist | 7z a -si ./${{ env.RELEASE_DIR }}/${{ env.RELEASE_BIN }}-${{ steps.get_version.outputs.VERSION }}-${{ env.LINUX_AARCH64_TARGET }}.tar.gz
