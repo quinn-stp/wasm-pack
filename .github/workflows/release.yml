@@ -97,11 +97,13 @@ jobs:
 
           shell: /bin/sh
           install: |
+            echo "$HOME"
             apk update
             apk add rustup build-base perl
             rustup-init -y
 
           run: |
+            echo "$HOME"
             cd /artifacts
             source $HOME/.cargo/env
             CFLAGS="-mno-outline-atomics" cargo build --release
