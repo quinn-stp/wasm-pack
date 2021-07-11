@@ -103,14 +103,14 @@ jobs:
 
           run: |
             cd /artifacts
-            git clone https://github.com/quinn-stp/wasm-pack ./
+            git clone https://github.com/quinn-stp/wasm-pack
             source $HOME/.cargo/env
             CFLAGS="-mno-outline-atomics" cargo build --release
 
       - name: Create tarball (Linux aarch64)
         if: matrix.build == 'linux-aarch64'
         run: |
-          mv /aarch64-artifacts/wasm-pack/target/${{ env.LINUX_AARCH64_TARGET }}/release/${{ env.RELEASE_BIN }} ./dist/${{ env.RELEASE_BIN }}
+          mv ./aarch64-artifacts/wasm-pack/target/${{ env.LINUX_AARCH64_TARGET }}/release/${{ env.RELEASE_BIN }} ./dist/${{ env.RELEASE_BIN }}
           mv ${{ env.RELEASE_ADDS }} ./dist
           7z a -ttar -so -an ./dist | 7z a -si ./${{ env.RELEASE_DIR }}/${{ env.RELEASE_BIN }}-${{ steps.get_version.outputs.VERSION }}-${{ env.LINUX_AARCH64_TARGET }}.tar.gz
 
